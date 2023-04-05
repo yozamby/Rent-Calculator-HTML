@@ -210,46 +210,66 @@ function calculateRent() {
     const hasCar = document.getElementById('car_yes').checked;
     const floorplan = document.querySelector('input[name="floorplan"]:checked').value;
     let bedSize = document.querySelector('input[name="bed_size"]:checked')?.value || '';
-
+  
     if (floorplan === '1x1' || floorplan === 'Studio') {
-        bedSize = ''; // Set bedSize to an empty string for the 1x1 floor plan
+      bedSize = ''; // Set bedSize to an empty string for the 1x1 floor plan
     }
-    
+  
     const fullFloorplan = floorplan === 'Studio' ? `${floorplan} ${bedSize}`.trim() : `${floorplan.replace(" Standard", "")} ${bedSize}`.trim();
-
+  
     const baseRent = calculateBaseRent(isStudent, fullFloorplan);
     const bedroomUpgrade = calculateBedroomUpgrade(isStudent, fullFloorplan, baseRent);
     const totalRent = calculateTotalRent(isStudent, fullFloorplan);
     const securityDeposit = calculateSecurityDeposit(isIncomeThreeTimesBaseRent, baseRent);
     const parkingFee = calculateParkingFee(isStudent, hasCar);
-
+  
     document.getElementById('base_rent').innerText = `$${baseRent.toFixed(2)}`;
     document.getElementById('bedroom_upgrade').innerText = bedroomUpgrade;
     document.getElementById('total_rent').innerText = `$${totalRent.toFixed(2)}`;
     document.getElementById('security_deposit').innerText = `$${securityDeposit.toFixed(2)}`;
     document.getElementById('parking_fee').innerText = parkingFee;
-
+  
     const adminFee = calculateAdminFee(isStudent);
     document.getElementById('admin_fee').innerText = adminFee;
-
+  
     // Furniture fee
     const isFurnished = document.getElementById('furnished_yes').checked;
     const furnitureFee = calculateFurnitureFee(isStudent, isFurnished);
     document.getElementById('furniture_fee').innerText = furnitureFee;
-
+  
     // Pet fee
     const hasPet = document.getElementById('pet_yes').checked;
     const isESA = document.getElementById('pet_esa').checked;
     const petFee = calculatePetFee(hasPet, isESA);
     document.getElementById('pet_fee').innerText = petFee;
-
+  
     // Short Term Lease Fee
     const isShortTermLease = document.getElementById('short_term_lease_yes').checked;
     const shortTermLeaseFee = calculateShortTermLeaseFee(isShortTermLease);
     document.getElementById('short_term_lease_fee').innerText = shortTermLeaseFee;
+  
+    function convertToNumber(value) {
+        if (isNaN(value) || value === "N/A" || value === "ESA") {
+          return 0;
+        }
+        return parseFloat(value);
+      }
 
-   
+
+    // Calculate the total monthly rent
+    const total_monthly_rent =
+    convertToNumber(baseRent) +
+    convertToNumber(bedroomUpgrade) +
+    convertToNumber(furnitureFee) +
+    convertToNumber(parkingFee) +
+    convertToNumber(petFee) +
+    convertToNumber(shortTermLeaseFee);
+  
+    // Display the total monthly rent
+    document.getElementById("total_rent").innerText = "Monthly Rent: $" + total_monthly_rent.toFixed(2);
+
 }
+  
 
 
 // Car event Listener
@@ -283,4 +303,3 @@ document.addEventListener('DOMContentLoaded', () => {
     updateBedSizeOptions();
     updateFloorplanOptions();
 });
-
