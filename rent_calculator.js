@@ -211,12 +211,16 @@ function updateTotalMoveInCost() {
     const adminFeeValue = document.getElementById('admin_fee').innerText;
     const securityDepositValue = document.getElementById('security_deposit').innerText;
     const totalRentValue = document.getElementById('total_rent').innerText;
+    const OneTimePetFeeValue = document.getElementById('one_time_pet_fee').innerText;
+
 
     const adminFee = parseFloat(adminFeeValue.replace('$', '')) || 0;
     const securityDeposit = parseFloat(securityDepositValue.replace('$', '')) || 0;
     const totalRent = parseFloat(totalRentValue.replace('$', '')) || 0;
+    const OnePetFee = parseFloat(OneTimePetFeeValue.replace('$', '')) || 0;
 
-    const totalMoveInCost = adminFee + securityDeposit + totalRent;
+
+    const totalMoveInCost = adminFee + securityDeposit + totalRent + OnePetFee;
     document.getElementById('total_move_in_cost').innerText = `$${totalMoveInCost.toFixed(2)}`;
 }
 
