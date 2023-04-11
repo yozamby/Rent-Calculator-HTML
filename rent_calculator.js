@@ -30,9 +30,10 @@ const prices = {
     parkingFee: 35,
     furnitureFee: 60,
     petFee: 50,
+    oneTimePetFee: 300,
     shortTermLeaseFee: 150,
 
-};
+}
 
 function updateFloorplanOptions() {
     const isStudent = document.getElementById('student_yes').checked;
@@ -170,6 +171,10 @@ function calculateParkingFee(isStudent, hasCar) {
     }
 }
 
+function calculateOneTimePetFee(hasPet) {
+    return hasPet ? `$${prices.oneTimePetFee.toFixed(2)}` : "N/A";
+}
+
 // Furniture Fee
 function calculateFurnitureFee(isStudent, isFurnished) {
     if (isStudent) {
@@ -202,6 +207,18 @@ function calculateTotalRent(isStudent, floorplan) {
     return rent;
 }
 
+function updateTotalMoveInCost() {
+    const adminFeeValue = document.getElementById('admin_fee').innerText;
+    const securityDepositValue = document.getElementById('security_deposit').innerText;
+    const totalRentValue = document.getElementById('total_rent').innerText;
+
+    const adminFee = parseFloat(adminFeeValue.replace('$', '')) || 0;
+    const securityDeposit = parseFloat(securityDepositValue.replace('$', '')) || 0;
+    const totalRent = parseFloat(totalRentValue.replace('$', '')) || 0;
+
+    const totalMoveInCost = adminFee + securityDeposit + totalRent;
+    document.getElementById('total_move_in_cost').innerText = `$${totalMoveInCost.toFixed(2)}`;
+}
 
 
 function calculateRent() {
@@ -242,34 +259,42 @@ function calculateRent() {
     const isESA = document.getElementById('pet_esa').checked;
     const petFee = calculatePetFee(hasPet, isESA);
     document.getElementById('pet_fee').innerText = petFee;
+
+    // One-time pet fee
+    const oneTimePetFee = hasPet && !isESA ? prices.oneTimePetFee : 0;
+    document.getElementById('one_time_pet_fee').innerText = hasPet ? `$${oneTimePetFee.toFixed(2)}` : "N/A";
+    
   
     // Short Term Lease Fee
     const isShortTermLease = document.getElementById('short_term_lease_yes').checked;
     const shortTermLeaseFee = calculateShortTermLeaseFee(isShortTermLease);
     document.getElementById('short_term_lease_fee').innerText = shortTermLeaseFee;
-  
+
     function convertToNumber(value) {
         if (isNaN(value) || value === "N/A" || value === "ESA") {
-          return 0;
+            return 0;
         }
         return parseFloat(value);
-      }
+    }
 
+    const bedroomUpgradeCost = bedroomUpgrade === "N/A" ? 0 : parseFloat(bedroomUpgrade.replace('$', ''));
 
     // Calculate the total monthly rent
     const total_monthly_rent =
-    convertToNumber(baseRent) +
-    convertToNumber(bedroomUpgrade) +
-    convertToNumber(furnitureFee) +
-    convertToNumber(parkingFee) +
-    convertToNumber(petFee) +
-    convertToNumber(shortTermLeaseFee);
-  
-    // Display the total monthly rent
-    document.getElementById("total_rent").innerText = "Monthly Rent: $" + total_monthly_rent.toFixed(2);
+        baseRent +
+        bedroomUpgradeCost +
+        convertToNumber(furnitureFee.replace('$', '')) +
+        convertToNumber(parkingFee.replace('$', '')) +
+        convertToNumber(shortTermLeaseFee.replace('$', '')) +
+        (hasPet && !isESA ? prices.petFee : 0); // Add pet fee if applicable
 
+
+    // Display the total monthly rent
+    document.getElementById("total_rent").innerText = `$${total_monthly_rent.toFixed(2)}`;
+
+    updateTotalMoveInCost();
 }
-  
+
 
 
 // Car event Listener
@@ -285,13 +310,25 @@ document.getElementById('income_no').addEventListener('change', calculateRent);
 document.getElementById('student_yes').addEventListener('change', updateFloorplanOptions);
 document.getElementById('student_no').addEventListener('change', updateFloorplanOptions);
 
+// Short Term Lease event listeners
+document.getElementById('short_term_lease_yes').addEventListener('change', calculateRent);
+document.getElementById('short_term_lease_no').addEventListener('change', calculateRent);
+
+
 const floorplanRadioButtons = document.getElementsByName('floorplan');
 for (const floorplanRadioButton of floorplanRadioButtons) {
     floorplanRadioButton.addEventListener('change', updateBedSizeOptions);
+
+
 }
 
 // Calculate rent event listener
 document.getElementById('calculate').addEventListener('click', calculateRent);
+
+// Furniture event listeners
+document.getElementById('furnished_yes').addEventListener('change', calculateRent);
+document.getElementById('furnished_no').addEventListener('change', calculateRent);
+
 
 // Pet event listeners
 document.getElementById('pet_yes').addEventListener('change', calculateRent);
